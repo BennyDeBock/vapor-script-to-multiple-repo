@@ -18,10 +18,10 @@ do
     cp ../projectboard.yml .github/workflows
 
     # Commit and push the repo
-    git checkout -b enchancement/addProjectboardWorkflow
+    git checkout -b enchancement/updateProjectboardWorkflow
     git add .
     git commit -m "Add project board workflow"
-    git push --set-upstream origin enchancement/addProjectboardWorkflow
+    git push --set-upstream origin enchancement/updateProjectboardWorkflow
 
     gh pr create --title "Update good first issue workflow to work for multiple labels" --body "This pr updates the project board workflow to use the reusable workflow defined in the [Vapor CI repository](https://github.com/vapor/ci)." -r "0xTim"
     # Remove repository after finishing
