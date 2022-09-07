@@ -1,0 +1,54 @@
+name: Add release to release notes 
+
+on:
+  release:
+    types: [released]
+
+
+jobs:
+  extract_details:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: set-version 
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          name="${{ github.event.release.name }}"
+          full="${version} ${name}"
+          echo "::set-output name=version::$(echo $full)"
+
+      - id: set-description 
+        run: |
+          description="${{ github.event.release.body }}"
+          description=${description//##/####}
+          description="${description//'%'/'%25'}"
+          description="${description//$'\n'/'%0A'}"
+          description="${description//$'\r'/'%0D'}"
+          echo "::set-output name=description::$(echo $description)"
+
+      - id: set-URL 
+        run: |
+          URL="${{ github.event.release.html_url }}"
+          echo "::set-output name=URL::$(echo $URL)"
+
+      - id: set-repo 
+        run: |
+          repo="${{ github.event.repository.name }}"
+          echo "::set-output name=repo::$(echo $repo)"
+
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+      description: ${{ steps.set-description.outputs.description }}
+      URL: ${{ steps.set-URL.outputs.URL }}
+      repo: ${{ steps.set-repo.outputs.repo }}
+  
+  transfer_details:
+    needs: extract_details
+    uses: vapor/ci/.github/workflows/release-notes.yml@main
+    with:
+      version: ${{ needs.extract_details.outputs.version }}
+      description: ${{ needs.extract_details.outputs.description }}
+      URL: ${{ needs.extract_details.outputs.URL }}
+      repo: ${{ needs.extract_details.outputs.repo }}
+    secrets:
+      RELEASE_NOTES_PAT: ${{ secrets.RELEASE_NOTES_PAT }}
